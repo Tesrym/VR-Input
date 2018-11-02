@@ -10,3 +10,5 @@ Remember to add **using VRI;** at the top of whatever script you are working in 
 You can edit the prefab settings to change the thresholds of what is considered to activate the **trigger**.
 
 The only changes this script will do to your Unity project, is adding more entries to the **Input Manager**.
+
+**This package is not for production**, but to help better understand these [docs without examples](https://docs.unity3d.com/Manual/OpenVRControllers.html).
