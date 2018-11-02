@@ -286,7 +286,6 @@ namespace VRI {
 
 			#region Set Up/Down
 			if (Input.GetButtonDown("Left Menu")) {
-				Debug.Log("DOWMNING");
 				leftMenu.down = true;
 			}
 			if (Input.GetButtonUp("Left Menu"))
