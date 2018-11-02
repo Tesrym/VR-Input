@@ -37,6 +37,11 @@ namespace VRI {
 		private Button leftGrip = new Button();
 		private Button rightGrip = new Button();
 
+		private bool leftTriggerPositive = false;
+		private bool rightTriggerPositive = false;
+		private bool leftGripPositive = false;
+		private bool rightGripPositive = false;
+
 		#region Left Menu Button
 		public static bool LeftMenuDown {
 			get {
@@ -148,12 +153,12 @@ namespace VRI {
 		#region Pad Axis
 		public static Vector2 LeftTouchPad {
 			get {
-				return new Vector2(Input.GetAxis("Left Vertical"), Input.GetAxis("Left Horizontal"));
+				return new Vector2(Input.GetAxis("Left Horizontal"), Input.GetAxis("Left Vertical"));
 			}
 		}
 		public static Vector2 RightTouchPad {
 			get {
-				return new Vector2(Input.GetAxis("Right Vertical"), Input.GetAxis("Left Horizontal"));
+				return new Vector2(Input.GetAxis("Right Horizontal"), Input.GetAxis("Right Vertical"));
 			}
 		}
 		#endregion
@@ -215,7 +220,7 @@ namespace VRI {
 		}
 		public static bool LeftGrip {
 			get {
-				return Input.GetButton("Left Grip");
+				return Input.GetAxis("Left Grip") > .5f ? true : false;
 			}
 		}
 		public static bool LeftGripUp {
@@ -233,7 +238,7 @@ namespace VRI {
 		}
 		public static bool RightGrip {
 			get {
-				return Input.GetButton("Right Grip");
+				return Input.GetAxis("Right Grip") > .5f ? true : false;
 			}
 		}
 		public static bool RightGripUp {
@@ -269,7 +274,7 @@ namespace VRI {
 
 			rightPadTouch.down = false;
 			rightPadTouch.up = false;
-
+			
 			leftTrigger.down = false;
 			leftTrigger.up = false;
 
@@ -285,9 +290,8 @@ namespace VRI {
 
 
 			#region Set Up/Down
-			if (Input.GetButtonDown("Left Menu")) {
+			if (Input.GetButtonDown("Left Menu"))
 				leftMenu.down = true;
-			}
 			if (Input.GetButtonUp("Left Menu"))
 				leftMenu.up = true;
 
@@ -315,26 +319,42 @@ namespace VRI {
 				rightPadTouch.down = true;
 			if (Input.GetButtonDown("Right Pad Touch"))
 				rightPadTouch.up = true;
-
-			if (Input.GetAxis("Left Trigger") > triggerDownThreshold)
+			
+			if (Input.GetAxis("Left Trigger") > triggerDownThreshold && !leftTriggerPositive) {
 				leftTrigger.down = true;
-			if (Input.GetAxis("Left Trigger") < triggerUpThreshold)
+				leftTriggerPositive = true;
+			}
+			if (Input.GetAxis("Left Trigger") < triggerUpThreshold && leftTriggerPositive) {
 				leftTrigger.up = true;
-
-			if (Input.GetAxis("Right Trigger") > triggerDownThreshold)
+				leftTriggerPositive = false;
+			}
+			
+			if (Input.GetAxis("Right Trigger") > triggerDownThreshold && !rightTriggerPositive) {
 				rightTrigger.down = true;
-			if (Input.GetAxis("Right Trigger") < triggerUpThreshold)
+				rightTriggerPositive = true;
+			}
+			if (Input.GetAxis("Right Trigger") < triggerUpThreshold && rightTriggerPositive) {
 				rightTrigger.up = true;
+				rightTriggerPositive = false;
+			}
 
-			if (Input.GetButtonDown("Left Grip"))
+			if (Input.GetAxis("Left Grip") > .5f && !leftGripPositive) {
 				leftGrip.down = true;
-			if (Input.GetButtonUp("Left Grip"))
+				leftGripPositive = true;
+			}
+			if (Input.GetAxis("Left Grip") < .5f && leftGripPositive) {
 				leftGrip.up = true;
+				leftGripPositive = false;
+			}
 
-			if (Input.GetButtonDown("Right Grip"))
+			if (Input.GetAxis("Right Grip") > .5f && !rightGripPositive) {
 				rightGrip.down = true;
-			if (Input.GetButtonUp("Right Grip"))
+				rightGripPositive = true;
+			}
+			if (Input.GetAxis("Right Grip") < .5f && rightGripPositive) {
 				rightGrip.up = true;
+				rightGripPositive = false;
+			}
 			#endregion
 
 		}
@@ -358,9 +378,9 @@ namespace VRI {
 				GUILayout.TextArea(LeftPadTouch.ToString());
 				GUILayout.TextArea(LeftPadTouchUp.ToString());
 
-				GUILayout.TextArea(LeftTouchPad.ToString());
+				GUILayout.TextArea(LeftTouchPad.x.ToString("F2") + " " + LeftTouchPad.y.ToString("F2"));
 
-				GUILayout.TextArea(LeftTriggerMagnitude.ToString());
+				GUILayout.TextArea(LeftTriggerMagnitude.ToString("F2"));
 
 				GUILayout.TextArea(LeftTriggerDown.ToString());
 				GUILayout.TextArea(LeftTrigger.ToString());
@@ -385,9 +405,9 @@ namespace VRI {
 				GUILayout.TextArea(RightPadTouch.ToString());
 				GUILayout.TextArea(RightPadTouchUp.ToString());
 
-				GUILayout.TextArea(RightTouchPad.ToString());
+				GUILayout.TextArea(RightTouchPad.x.ToString("F2") + " " + RightTouchPad.y.ToString("F2"));
 
-				GUILayout.TextArea(RightTriggerMagnitude.ToString());
+				GUILayout.TextArea(RightTriggerMagnitude.ToString("F2"));
 
 				GUILayout.TextArea(RightTriggerDown.ToString());
 				GUILayout.TextArea(RightTrigger.ToString());
@@ -399,6 +419,7 @@ namespace VRI {
 
 				GUILayout.EndVertical();
 				GUILayout.EndHorizontal();
+
 
 			}
 		}
@@ -427,14 +448,14 @@ namespace VRI {
 			new InputManagerEntry { name = "Right Pad Press",   kind = InputManagerEntry.Kind.KeyOrButton,  btnPositive = "joystick button 9" },
 			new InputManagerEntry { name = "Left Pad Touch",    kind = InputManagerEntry.Kind.KeyOrButton,  btnPositive = "joystick button 16" },
 			new InputManagerEntry { name = "Right Pad Touch",   kind = InputManagerEntry.Kind.KeyOrButton,  btnPositive = "joystick button 17" },
-			new InputManagerEntry { name = "Left Horizontal",   kind = InputManagerEntry.Kind.Axis,         axis = InputManagerEntry.Axis.X },
-			new InputManagerEntry { name = "Left Vertical",     kind = InputManagerEntry.Kind.Axis,         axis = InputManagerEntry.Axis.Y },
-			new InputManagerEntry { name = "Right Horizontal",  kind = InputManagerEntry.Kind.Axis,         axis = InputManagerEntry.Axis.Fifth,    gravity = 1000f, deadZone = 0.001f, sensitivity = 1000f},
-			new InputManagerEntry { name = "Right Vertical",    kind = InputManagerEntry.Kind.Axis,         axis = InputManagerEntry.Axis.Sixth,    gravity = 1000f, deadZone = 0.001f, sensitivity = 1000f},
-			new InputManagerEntry { name = "Left Trigger",      kind = InputManagerEntry.Kind.Axis,         axis = InputManagerEntry.Axis.X + 8,    gravity = 1000f, deadZone = 0.001f, sensitivity = 1000f},
-			new InputManagerEntry { name = "Right Trigger",     kind = InputManagerEntry.Kind.Axis,         axis = InputManagerEntry.Axis.X + 9,    gravity = 1000f, deadZone = 0.001f, sensitivity = 1000f},
-			new InputManagerEntry { name = "Left Grip",         kind = InputManagerEntry.Kind.Axis,         axis = InputManagerEntry.Axis.X + 10,   gravity = 1000f, deadZone = 0.001f, sensitivity = 1000f},
-			new InputManagerEntry { name = "Right Grip",        kind = InputManagerEntry.Kind.Axis,         axis = InputManagerEntry.Axis.X + 11,   gravity = 1000f, deadZone = 0.001f, sensitivity = 1000f},
+			new InputManagerEntry { name = "Left Horizontal",   kind = InputManagerEntry.Kind.Axis,         axis = InputManagerEntry.Axis.X,		deadZone = 0.001f, sensitivity = 1f},
+			new InputManagerEntry { name = "Left Vertical",     kind = InputManagerEntry.Kind.Axis,         axis = InputManagerEntry.Axis.Y,		deadZone = 0.001f, sensitivity = 1f,	invert = true},
+			new InputManagerEntry { name = "Right Horizontal",  kind = InputManagerEntry.Kind.Axis,         axis = InputManagerEntry.Axis.Fourth,	deadZone = 0.001f, sensitivity = 1f},
+			new InputManagerEntry { name = "Right Vertical",    kind = InputManagerEntry.Kind.Axis,         axis = InputManagerEntry.Axis.Fifth,	deadZone = 0.001f, sensitivity = 1f,	invert = true},
+			new InputManagerEntry { name = "Left Trigger",      kind = InputManagerEntry.Kind.Axis,         axis = InputManagerEntry.Axis.X + 8,	deadZone = 0.001f, sensitivity = 1f},
+			new InputManagerEntry { name = "Right Trigger",     kind = InputManagerEntry.Kind.Axis,         axis = InputManagerEntry.Axis.X + 9,	deadZone = 0.001f, sensitivity = 1f},
+			new InputManagerEntry { name = "Left Grip",         kind = InputManagerEntry.Kind.Axis,         axis = InputManagerEntry.Axis.X + 10,	deadZone = 0.001f, sensitivity = 1f,	snap = true},
+			new InputManagerEntry { name = "Right Grip",        kind = InputManagerEntry.Kind.Axis,         axis = InputManagerEntry.Axis.X + 11,	deadZone = 0.001f, sensitivity = 1f,	snap = true},
 		};
 			InputRegistering.RegisterInputs(inputEntries);
 #endif
