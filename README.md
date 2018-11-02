@@ -2,12 +2,8 @@
 
 This is a simple package that will get you Vive wand input from **OpenVR**.
 
-```mermaid
-graph LR
-A[VRI Folder] --> B(VRInput.cs)
-A --> C[Resources]
-C --> D(VRInput.prefab)
-```
+
+
 The script will give you all the inputs you need, like **VRInput.LeftTriggerMagnitude** or **VRInput.RightGripDown**.
 Remember to add **using VRI;** at the top of whatever script you are working in to use it.
 
